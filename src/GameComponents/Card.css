@@ -2,12 +2,11 @@
     visibility: hidden;
   }
 .card:hover .text {
-    opacity: 0.8;
     z-index: 1;
     visibility: visible;
     transition-delay: 0s;
     background-color: #0b0c10;
-    animation: slide-in 1s cubic-bezier(.23,1,.69,.97);
+    animation: slide-in 1s cubic-bezier(.09,.86,.09,.86);
     color: #c5c6c7; 
     cursor: default;
 }
@@ -26,6 +25,7 @@
 .text{
     width: 100%;
     height: 100%;
+    font-size: 125%;
     position: relative;
 }
 
@@ -37,10 +37,10 @@
 @keyframes slide-in {
     from {
         opacity: 0;
-        transform: translateY(100%);
+        /* transform: translateY(100%); */
     }
     to {
-        opacity: 0.8;
-        transform: translateY(0%);
+        opacity: 1;
+        /* transform: translateY(0%); */
     }
 }

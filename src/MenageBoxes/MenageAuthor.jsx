@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import './MenageAuthor.css';
 
 const MenageAuthor = (props) =>{
@@ -7,35 +7,37 @@ const MenageAuthor = (props) =>{
     const [putBoxVisible, setPutBoxVisible] = useState(false);
     const [putNumber, setPutNumber] = useState("0");
     const [showFew, setShowFew] = useState(true);
+    const [popUpVisibility, setPopUpVisibility] = useState(false);
+    const [popUpText, setPopUpText] = useState("");
+    const [author,setAuthor] = useState([])
     
+
+    const refreshAuthor=()=>{
+        fetch('http://localhost:8080/author')
+        .then(response => response.json())
+        .then(data =>setAuthor(data));
+    }
+    useEffect(() => {
+        refreshAuthor();
+    }, []);
+
 
     function handleDeleteIndex(event) {
         const id = event.target.id.replace("delete", "");
-        const foundAuthor = props.author.find(author => author.id.toString() === id);
-        const authorName = foundAuthor.name;
-        let status = "closed";
-        if(foundAuthor.status === "closed"){
-            status = null;
-        }
-        setPutBoxVisible(false);
-            fetch('http://localhost:8080/author', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: id,
-                name: authorName,
-                status: status,
-            })})
-            .then(response => {
+        fetch(`http://localhost:8080/author/${id}`, {
+        method: "DELETE"
+        })
+        .then(response => {
             if (response.ok) {
-                props.fetchValues();
-                setPutBoxVisible(false);
+                refreshAuthor();
             } else {
-                throw new Error('Failed to add author');
-            }})
-            .catch(error => console.error(error));
+                throw new Error('Failed to delete author');
+        }})
+        .catch(error => {
+            setPopUpText('Failed to delete author');
+            setPopUpVisibility(true)
+            console.error(error)
+        });
       }
       
 
@@ -43,7 +45,7 @@ const MenageAuthor = (props) =>{
       const handleAddIndex = () =>{
         setAddBoxVisible(false);
         let highestNumber = 0;
-        props.author.forEach(author => {
+        author.forEach(author => {
             if(highestNumber < author.id){highestNumber = author.id}
         });
         highestNumber++;
@@ -58,12 +60,16 @@ const MenageAuthor = (props) =>{
         })})
         .then(response => {
         if (response.ok) {
-            props.fetchValues();
+            refreshAuthor();
             setAddBoxVisible(false);
         } else {
             throw new Error('Failed to add author');
         }})
-        .catch(error => console.error(error));
+        .catch(error => {
+            setPopUpText('Failed to add category');
+            setPopUpVisibility(true)
+            console.error(error)
+        });
     }
     
         const handlePutIndex = () =>{
@@ -79,7 +85,7 @@ const MenageAuthor = (props) =>{
             })})
             .then(response => {
             if (response.ok) {
-                props.fetchValues();
+                refreshAuthor();
                 setPutBoxVisible(false);
             } else {
                 throw new Error('Failed to add author');
@@ -100,10 +106,14 @@ const MenageAuthor = (props) =>{
     return(
        
         <div className="display">
+            {popUpVisibility && <div className="popUpBox">
+                <img src="/close.png" id="popUpClose" alt="close this window" onClick={()=>setPopUpVisibility(false)}/>
+                <h3 className="popUpText">{popUpText}</h3>
+            </div>}
             {showFew && 
             <table className="tableAuthor" >
                 <tbody>
-                {props.author.filter(author => author.status !== "closed").map(author => (
+                {author.filter(author => author.status !== "closed").map(author => (
                     <tr key={author.id}>
                     <th>{author.name}</th>
                     <th><button  onClick={handleDeleteIndex}  id={`delete${author.id}`} className="button1">delete author</button></th>
@@ -113,11 +123,11 @@ const MenageAuthor = (props) =>{
                 </tbody>
                 <button onClick={() => setShowFew(!showFew)}>show archive</button>
             </table>}
-
+            
             {showFew ===false && 
             <table className="tableAuthor" >
                 <tbody>
-                {props.author.map(author => (
+                {author.map(author => (
                     <tr key={author.id}>
                     <th>{author.name}</th>
                     <th><button onClick={handleDeleteIndex}  id={`delete${author.id}`} className="button1">{author.status === null && "delete author"}{author.status === "closed" && "activate author"}</button></th>
@@ -136,7 +146,7 @@ const MenageAuthor = (props) =>{
                 </p></div>}
                     
             {putBoxVisible && <div className="authorBox">
-                <p>insert author name: <input type="text" name="putName" id="putName"/>
+                <p>insert author name: <input type="text" name="putName" id="putName" defaultValue={author.find(author=> author.id.toString() === putNumber).name}/>
                     <button onClick={handlePutIndex} className="button1">modify this author</button></p></div>}
             
         </div>

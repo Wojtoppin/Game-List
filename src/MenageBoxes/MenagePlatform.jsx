@@ -1,85 +1,119 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import './MenagePlatform.css';
 
 const MenagePlatform = (props) =>{
-
-    
     const [addBoxVisible, setAddBoxVisible] = useState(false);
     const [putBoxVisible, setPutBoxVisible] = useState(false);
     const [putNumber, setPutNumber] = useState("0");
+    const [popUpVisibility, setPopUpVisibility] = useState(false);
+    const [popUpText, setPopUpText] = useState("");
+    const [platform,setPlatform] = useState([])
     
+
+    const refreshPlatform=()=>{
+        fetch('http://localhost:8080/platform')
+        .then(response => response.json())
+        .then(data =>setPlatform(data));
+    }
+    useEffect(() => {
+        refreshPlatform();
+    }, []);
+
 
     const handleDeleteIndex = (event) => {
         const id = event.target.id.replace("delete", "");
         fetch(`http://localhost:8080/platform/${id}`, {
         method: "DELETE"
         })
-        .then((data) =>{
-            props.fetchValues();
-        })
+        .then(response => {
+            if (response.ok) {
+                refreshPlatform();
+            } else {
+                throw new Error('Failed to delete platform');
+        }})
+        .catch(error => {
+            setPopUpText('Failed to delete platform');
+            setPopUpVisibility(true)
+            console.error(error)
+        });
     };
 
+    const handleIndex = (method) =>{
 
-    const handleAddIndex = () =>{
-        let highestNumber = 0;
-        props.platform.forEach(platform => {
-            if(highestNumber < platform.id){highestNumber = platform.id}
-        });
-        highestNumber++;
-        fetch('http://localhost:8080/platform', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: highestNumber,
-            name: document.getElementById("addName").value,
-        })})
-        .then(response => {
-        if (response.ok) {
-            props.fetchValues();
-        } else {
-            throw new Error('Failed to add platform');
-        }})
-        .catch(error => console.error(error));
-    }
-    
-        const handlePutIndex = () =>{
-            fetch('http://localhost:8080/platform', {
-            method: 'PUT',
+        let requestBody = {};
+
+        if (method === "add"){
+            let highestNumber = 0;
+            platform.forEach(platform => {
+                if(highestNumber < platform.id){highestNumber = platform.id}
+            });
+            highestNumber++;
+            requestBody = {
+                id: highestNumber,
+            };
+        }else{
+            requestBody = {
+                id: putNumber,
+            };
+        }
+
+        let methods = "";
+        if (method === "add"){
+            methods = "POST";
+        }else{
+            methods = "PUT";
+        }
+
+        requestBody.name = document.getElementById(method+"Name").value;
+        
+        fetch('http://localhost:8080/author', {
+            method: methods,
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: putNumber,
-                name: document.getElementById("putName").value,
-            })})
-            .then(response => {
+        },
+        body: JSON.stringify(requestBody)
+        })
+        .then(response => {
             if (response.ok) {
-                props.fetchValues();
+                setAddBoxVisible(false);
+                setPutBoxVisible(false);
+                refreshPlatform();
             } else {
-                throw new Error('Failed to add platform');
-            }})
-            .catch(error => console.error(error));
-        }
+                throw new Error('Failed to add author');
+            }
+        })
+        .catch(error => {
+            if(method === "add"){
+                setPopUpText('Failed to add author');
+            }else{
+                setPopUpText('Failed to modify author');
+            }
+            setPopUpVisibility(true)
+            console.error(error)
+        });
+    }
 
-        const onAdd = () => {
-            setAddBoxVisible(!addBoxVisible);
-            if(putBoxVisible){setPutBoxVisible(false)}
+    const onAdd = () => {
+        setAddBoxVisible(!addBoxVisible);
+        if(putBoxVisible){setPutBoxVisible(false)}
 
-        }
-        const onPut = (event) => {
-            setPutNumber(event.target.id.replace("put", ""));
-            setPutBoxVisible(!putBoxVisible);
-            if(addBoxVisible){setAddBoxVisible(false)}
-        }
+    }
+    const onPut = (event) => {
+        setPutNumber(event.target.id.replace("put", ""));
+        setPutBoxVisible(!putBoxVisible);
+        if(addBoxVisible){setAddBoxVisible(false)}
+    }
 
     return(
         <div className="display">
+            {popUpVisibility && <div className="popUpBox">
+                <img src="/close.png" id="popUpClose" alt="close this window" onClick={()=>setPopUpVisibility(false)}/>
+                <h3 className="popUpText">{popUpText}</h3>
+            </div>}
             <table className="tablePlatform" >
                 <tbody>
                     
-                    {props.platform.map(platform => (
+                    {platform.filter(platform => platform.status !== "closed").map(platform => (
                     <tr key={platform.id}>
                         <th>{platform.name}</th>
                         <th><button onClick={handleDeleteIndex} id={`delete${platform.id}`} className="button1">delete this platform</button></th>
@@ -91,14 +125,14 @@ const MenagePlatform = (props) =>{
             <div className="delete">
                     {addBoxVisible && <div className="platformBox">
                         <p>insert platform name: <input type="text" name="addName" id="addName"/> 
-                        <button onClick={handleAddIndex} className="button1">add this platform</button></p>
+                        <button onClick={() =>handleIndex("add")} className="button1">add this platform</button></p>
                     </div>}
 
 
                     
                     {putBoxVisible && <div className="platformBox">
-                        <p>insert new name: <input type="text" name="putName" id="putName"/> 
-                        <button onClick={handlePutIndex} className="button1">modify this platform</button></p>
+                        <p>insert new name: <input type="text" name="putName" id="putName" defaultValue={platform.find(platform => platform.id.toString() === putNumber).name}/> 
+                        <button onClick={() =>handleIndex("put")} className="button1">modify this platform</button></p>
                     </div>}
 
                 </div>

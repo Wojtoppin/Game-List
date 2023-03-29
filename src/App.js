@@ -15,9 +15,6 @@ class App extends React.Component{
     super(props);
     this.state = {
       game:[],
-      author:[],
-      category:[],
-      platform:[],
       settingsMargin: 0,
       windowSize:'large',
       isWindowOpened: true,
@@ -36,32 +33,17 @@ class App extends React.Component{
     this.onCategoryToggle = this.onCategoryToggle.bind(this);
     this.onPlatformToggle = this.onPlatformToggle.bind(this);
     this.onChangeURL = this.onChangeURL.bind(this);
-    this.fetchValues = this.fetchValues.bind(this);
+    this.fetchGames = this.fetchGames.bind(this)
   }
-  fetchValues(){
+  fetchGames(){
     fetch(this.state.gameURL)
     .then(response => response.json())
     .then(data =>this.setState({game:data}));
-    
-    fetch('http://localhost:8080/author')
-    .then(response => response.json())
-    .then(data =>this.setState({author:data}));
-
-    fetch('http://localhost:8080/category')
-    .then(response => response.json())
-    .then(data =>this.setState({category:data}));
-
-    fetch('http://localhost:8080/platform')
-    .then(response => response.json())
-    .then(data =>this.setState({platform:data}));
-    this.setState({isResetPreferencesOpened:false})
   }
 
   componentDidMount(){
-    this.fetchValues();
+    this.fetchGames();
   }
-
-  
 
   handleSizeChange(){
     this.setState(prevState => ({
@@ -84,8 +66,6 @@ class App extends React.Component{
     }else{
       return false;
     }
-    
-      
   }
 
   onAuthorToggle(){
@@ -99,8 +79,6 @@ class App extends React.Component{
         isWindowOpened: !this.state.isWindowOpened,
       });
     }
-    
-    
   }
 
   onGameToggle(){
@@ -115,6 +93,7 @@ class App extends React.Component{
       });
     }
   }
+
   
   onCategoryToggle(){
     if(this.toggleCheck(this.state.isMenageAuthorOpened,this.state.isMenageGameOpened,this.state.isMenagePlatformOpened)){
@@ -143,13 +122,17 @@ class App extends React.Component{
   }
 
   onChangeURL(newURL){
+    console.log(newURL);
     if(newURL !== "http://localhost:8080/game?"){
       this.setState({isResetPreferencesOpened: true})
+    }else{
+      this.setState({isResetPreferencesOpened: false})
     }
     fetch(newURL)
     .then(response => response.json())
-    .then(data =>this.setState({game:data}));
-    
+    .then(data =>{
+      this.setState({game:data})
+    });
   }
   
 
@@ -160,12 +143,12 @@ class App extends React.Component{
         {this.state.isWindowOpened && <Filter state={this.state} onChangeURL={this.onChangeURL}/>}
         <img src="/settings.png" style={{marginLeft: `${this.state.settingsMargin}%`}} alt="open settings" className="openSettings" onClick={this.handleSizeChange}/>
         {this.state.isSettingsOpened && <Settings onAuthorToggle={this.onAuthorToggle} onGameToggle={this.onGameToggle} onCategoryToggle={this.onCategoryToggle} onPlatformToggle={this.onPlatformToggle}/>}
-        {this.state.isMenageGameOpened && <MenageGame fetchValues={this.fetchValues} state={this.state}/>}
-        {this.state.isMenageAuthorOpened && <MenageAuthor fetchValues={this.fetchValues} author={this.state.author}/>}
-        {this.state.isMenageCategoryOpened && <MenageCategory fetchValues={this.fetchValues} category={this.state.category}/>}
-        {this.state.isMenagePlatformOpened && <MenagePlatform fetchValues={this.fetchValues} platform={this.state.platform}/>}
+        {this.state.isMenageGameOpened && <MenageGame fetchGames={this.fetchGames}/>}
+        {this.state.isMenageAuthorOpened && <MenageAuthor/>}
+        {this.state.isMenageCategoryOpened && <MenageCategory/>}
+        {this.state.isMenagePlatformOpened && <MenagePlatform/>}
         {this.state.isWindowOpened && <Window state={this.state} windowSize={this.state.windowSize} onChangeURL={this.onChangeURL}/>}
-        {this.state.isWindowOpened && this.state.isResetPreferencesOpened &&<img className="reset" src="/reset.png" alt='reset values' onClick={this.fetchValues} style={{marginLeft: `${this.state.settingsMargin}%`}}/>}
+        {this.state.isWindowOpened && this.state.isResetPreferencesOpened &&<img className="reset" src="/reset.png" alt='reset values' onClick={this.fetchGames} style={{marginLeft: `${this.state.settingsMargin}%`}}/>}
       </div>
     );
   };

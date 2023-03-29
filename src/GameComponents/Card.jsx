@@ -2,11 +2,11 @@ import "./Card.css"
 import React from "react";
 const Card = (props) =>{
 
-
     return (
         <div className="card" style={{
-            backgroundImage: props.game.title ? `url(${props.game.title.replace(/\s/g, '%20')}.jpg)`: ''
-            }}>
+            backgroundImage: `url('${props.game.gameImage}')`
+          }}>
+                
 
             <div className="text">
                 <p className="GameTitle">

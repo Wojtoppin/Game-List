@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React,{useState, useEffect} from "react";
 import './MenageCategory.css';
 
 const MenageCategory = (props) =>{
@@ -7,63 +7,96 @@ const MenageCategory = (props) =>{
     const [addBoxVisible, setAddBoxVisible] = useState(false);
     const [putBoxVisible, setPutBoxVisible] = useState(false);
     const [putNumber, setPutNumber] = useState("0");
+    const [popUpVisibility, setPopUpVisibility] = useState(false);
+    const [popUpText, setPopUpText] = useState("");
+    const [category,setCategory] = useState([])
     
+
+    const refreshCategory=()=>{
+        fetch('http://localhost:8080/category')
+        .then(response => response.json())
+        .then(data =>setCategory(data));
+    }
+    useEffect(() => {
+        refreshCategory();
+    }, []);
+
+
 
     const handleDeleteIndex = (event) => {
         const id = event.target.id.replace("delete", "");
         fetch(`http://localhost:8080/category/${id}`, {
           method: "DELETE"
         })
-        .then((data) =>{
-            props.fetchValues();
-        })
+        .then(response => {
+            if (response.ok) {
+                refreshCategory();
+            } else {
+                throw new Error('Failed to delete category');
+        }})
+        .catch(error => {
+            setPopUpText('Failed to delete category');
+            setPopUpVisibility(true)
+            console.error(error)
+        });
       };
 
 
-      const handleAddIndex = () =>{
-        setAddBoxVisible(false);
-        let highestNumber = 0;
-        props.category.forEach(category => {
-            if(highestNumber < category.id){highestNumber = category.id}
-        });
-        highestNumber++;
-        fetch('http://localhost:8080/category', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: highestNumber,
-            name: document.getElementById("addName").value,
-        })})
-        .then(response => {
-        if (response.ok) {
-            props.fetchValues();
-        } else {
-            throw new Error('Failed to add category');
-        }})
-        .catch(error => console.error(error));
-    }
+
+      const handleIndex = (method) =>{
+        let requestBody = {};
+
+        if (method === "add"){
+            let highestNumber = 0;
+            category.forEach(category => {
+                if(highestNumber < category.id){highestNumber = category.id}
+            });
+            highestNumber++;
+            requestBody = {
+                id: highestNumber,
+            };
+        }else{
+            requestBody = {
+                id: putNumber,
+            };
+        }
+
     
-    const handlePutIndex = () =>{
-        setPutBoxVisible(false);
-            fetch('http://localhost:8080/category', {
-            method: 'PUT',
+        let methods = "";
+        if (method === "add"){
+            methods = "POST";
+        }else{
+            methods = "PUT";
+        }
+
+        requestBody.name = document.getElementById(method+"Name").value;
+        fetch('http://localhost:8080/category', {
+            method: methods,
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: putNumber,
-                name: document.getElementById("putName").value,
-            })})
-            .then(response => {
+        },
+        body: JSON.stringify(requestBody)
+        })
+        .then(response => {
             if (response.ok) {
-                props.fetchValues();
+                setAddBoxVisible(false);
+                setPutBoxVisible(false);
+                refreshCategory();
             } else {
                 throw new Error('Failed to add category');
-            }})
-            .catch(error => console.error(error));
-        }
+            }
+        })
+        .catch(error => {
+            if(method === "add"){
+                setPopUpText('Failed to add category');
+            }else{
+                setPopUpText('Failed to modify category');
+            }
+            setPopUpVisibility(true)
+            console.error(error)
+        });
+    }
+
 
         const onAdd = () => {
             setAddBoxVisible(!addBoxVisible);
@@ -71,16 +104,28 @@ const MenageCategory = (props) =>{
 
         }
         const onPut = (event) => {
-            setPutNumber(event.target.id.replace("put", ""));
             setPutBoxVisible(!putBoxVisible);
-            if(addBoxVisible){setAddBoxVisible(false)}
+            if (addBoxVisible) {
+                setAddBoxVisible(false);
+            }
+            if(!putBoxVisible){
+                const categoryId = event.target.id.replace("put", "");
+                setPutNumber(categoryId.toString());
+            }
+            
         }
+        
 
     return(
         <div className="display">
+            {popUpVisibility && <div className="popUpBox">
+                <img src="/close.png" id="popUpClose" alt="close this window" onClick={()=>setPopUpVisibility(false)}/>
+                <h3 className="popUpText">{popUpText}</h3>
+            </div>}
+
             <table className="tableCategory" >
                 <tbody>
-                    {props.category.map(category => (
+                    {category.filter(category => category.status !== "closed").map(category => (
                     <tr key={category.id}>
                         <th>{category.name}</th>
                         <th><button onClick={handleDeleteIndex} id={`delete${category.id}`} className="button1">delete this category</button></th>
@@ -92,14 +137,14 @@ const MenageCategory = (props) =>{
             <div className="delete">
                     {addBoxVisible && <div className="categoryBox">
                         <p>insert category name: <input type="text" name="addName" id="addName"/> 
-                        <button onClick={handleAddIndex} className="button1">add this category</button></p>
+                        <button onClick={() =>handleIndex("add")} className="button1">add this category</button></p>
                     </div>}
 
 
                     
                     {putBoxVisible && <div className="categoryBox">
-                        <p>insert category name: <input type="text" name="putName" id="putName"/> 
-                        <button onClick={handlePutIndex} className="button1">modify this category</button></p>
+                        <p>insert category name: <input type="text" name="putName" id="putName" defaultValue={category.find(category=>category.id.toString() === putNumber).name}/> 
+                        <button onClick={() => handleIndex("put")} className="button1">modify this category</button></p>
                     </div>}
 
                 </div>

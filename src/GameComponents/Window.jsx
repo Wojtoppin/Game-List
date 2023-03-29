@@ -12,7 +12,7 @@ const Window = (props) =>{
       setMarginLeft("20%");
     }
   }, [props.state.windowSize]);
-  const cards = props.state.game.map(game => <Card game={game} key={game.id} onChangeURL={props.onChangeURL} />)
+  const cards = props.state.game.filter(game => game.status !== "closed").map(game => <Card game={game} key={game.id} onChangeURL={props.onChangeURL} />)
   return(
     <div>
       
