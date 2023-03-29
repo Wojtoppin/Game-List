@@ -1,0 +1,46 @@
+.card .text {
+    visibility: hidden;
+  }
+.card:hover .text {
+    opacity: 0.8;
+    z-index: 1;
+    visibility: visible;
+    transition-delay: 0s;
+    background-color: #0b0c10;
+    animation: slide-in 1s cubic-bezier(.23,1,.69,.97);
+    color: #c5c6c7; 
+    cursor: default;
+}
+.card{
+    z-index: 0;
+    border: 1px solid #66fcf1;
+    color: #c5c6c7;
+    float: left;
+    text-align: center;
+    margin:10%;
+    background-size: cover;
+    background-position: center;
+    
+    
+}
+.text{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.GameTitle{
+    margin-top: 0px;
+    padding-top: 5%;
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 0.8;
+        transform: translateY(0%);
+    }
+}

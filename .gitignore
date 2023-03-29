@@ -1,0 +1,41 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+public/Counter-Strike.jpg
+public/Cyberpunk 2077.jpg
+public/Factorio.jpg
+public/Fifa 23.jpg
+public/Fortnite.jpg
+public/Forza Horizon.jpg
+public/League of Legends.jpg
+public/Microsoft Flight Simulator.jpg
+public/Minecraft.jpg
+public/Need For Speed.jpg
+public/Rocket League.jpg
+public/Sims.jpg
+public/Super Mario Bros.jpg
+public/Team Fight Tactics.jpg
+public/Team Fortress 2.jpg
+public/Valorant.jpg
+public/Wiedzmin 3.jpg
+public/settings.png

@@ -1,0 +1,30 @@
+.filter{
+    margin-left: 20%;
+    margin-top: 10%;
+    width: 60%;
+    color: #c5c6c7;
+}
+.filterBox{
+    padding: 1%;
+    margin-top: 2px;
+    border: 1px solid #45a29e; 
+}
+.boxWidth{
+    width: 90%;
+    background: #000;
+    color: #20c20e;
+
+}
+.image{
+    position: absolute;
+    top: 2%;
+    left: 95%;
+    height: 6%;
+    width: 3%;
+    
+}
+.filterButton{
+    background: #314051;
+    color: #c5c6c7;
+    font-size: large;
+}

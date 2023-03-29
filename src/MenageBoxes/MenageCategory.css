@@ -1,0 +1,18 @@
+.display{
+    margin-top: 10%;
+    margin-left: 25%;
+    color: #c5c6c7;
+}
+.tableCategory{
+    color: white;
+}
+.button1{
+    margin-left: 2%;
+    color: aliceblue;
+    background: #314051;
+}
+.categoryBox{
+    position: absolute;
+    top: 40%;
+    left: 60%;
+}

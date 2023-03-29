@@ -1,0 +1,45 @@
+.display{
+    margin-top: 10%;
+    margin-left: 25%;
+    color: #c5c6c7;
+}
+.button2{
+    margin-top: 2%;
+    color: aliceblue;
+    background: #314051;
+}
+
+.headers{
+    color: #45a29e;
+}
+
+.insertTable{
+    width: 20%;
+}
+.display{
+    margin-top: 10%;
+    margin-left: 25%;
+    color: #c5c6c7;
+}
+
+.tableGame{
+    
+    position: absolute;
+    color: white;
+    height: 75%;
+    width: 50vw;
+    overflow-x: auto;
+    top: 20%;
+    left: 25%;
+}
+
+.button1{
+    margin-left: 2%;
+    color: aliceblue;
+    background: #314051;
+}
+.gameBox{
+    position: absolute;
+    top: 30%;
+    left: 78%;
+}
