@@ -120,22 +120,24 @@ const MenageAuthor = (props) =>{
                     <th><button onClick={onPut} id={`put${author.id}`} className="button1">edit author</button></th>
                     </tr>))}
                     <tr><th colSpan="3"> <button onClick={onAdd} className="button1">add new author</button></th></tr>
+                    <tr><th colSpan="3"><img src="/archive.png" alt="show archive" onClick={() => setShowFew(!showFew)} className="archive"/></th></tr>
                 </tbody>
-                <button onClick={() => setShowFew(!showFew)}>show archive</button>
+                
             </table>}
             
             {showFew ===false && 
             <table className="tableAuthor" >
                 <tbody>
+                    <tr><th colSpan="3">Jesteś teraz w archiwum</th></tr>
                 {author.map(author => (
                     <tr key={author.id}>
                     <th>{author.name}</th>
-                    <th><button onClick={handleDeleteIndex}  id={`delete${author.id}`} className="button1">{author.status === null && "delete author"}{author.status === "closed" && "activate author"}</button></th>
+                    <th><button onClick={handleDeleteIndex}  id={`delete${author.id}`} className="button1">{author.status === null && "delete author"}{author.status === "closed" && "reactivate this author"}</button></th>
                     <th><button onClick={onPut} id={`put${author.id}`} className="button1">edit author</button></th>
                     </tr>))}
                     <tr><th colSpan="3"> <button onClick={onAdd} className="button1">add new author</button></th></tr>
+                    <tr><th colSpan="3"><img src="/archive.png" alt="show archive" onClick={() => setShowFew(!showFew)} className="archive"/></th></tr>
                 </tbody>
-                <button onClick={() => setShowFew(!showFew)}>show only active</button>
             </table>}
 
 
